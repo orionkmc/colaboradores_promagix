@@ -12,29 +12,26 @@
 add_filter( 'woocommerce_product_tabs', 'woo_new_product_tab' );
 
 function woo_new_product_tab( $tabs ) {
+
     global $current_user;
 
     $id = $current_user->ID;
     $user_rol = get_userdata( $id );
-
-    if ($user_rol->roles[0] == 'COLABORADOR') {
-        
-    
-    
-    // Adds the new tab
-        $tabs['test_tab'] = array(
-            'title'     => "Para Colaboradores",
-            'priority'  => 1,
-            'callback'  => 'woo_new_product_tab_content'
-        );
-        return $tabs;
+    foreach ($user_rol->roles as $key) {
+        if ($key == 'colaborador') {
+            $tabs['test_tab'] = array(
+                'title'     => "Para Colaboradores",
+                'priority'  => 1,
+                'callback'  => 'woo_new_product_tab_content'
+            );
+            return $tabs;
+        }
     }
 
 }
 
 
 function woo_new_product_tab_content() {
-
     global $wpdb;
     global $current_user;
 
@@ -49,11 +46,8 @@ function woo_new_product_tab_content() {
     $affwp_settings = $wpdb->get_results("SELECT option_value FROM wp_options WHERE option_name = 'affwp_settings'", OBJECT);
 
     $total = $_price[0]->meta_value - $_posr_cost_of_good[0]->meta_value;
-
-  
-
 ?>
-    <h3>Tu Ganancia por venta: <span style="color:green;"><?= $total * (unserialize( $affwp_settings[0]->option_value )['referral_rate'] / 100) ?></span></h3>
+    <h3>Tu Ganancia por venta: <span style="color:green;"><?= $total * (unserialize( $affwp_settings[0]->option_value )['referral_rate'] / 100) ?>$</span></h3>
     <h3>Url para compartir este producto:</h3>
     <?php
     echo "http://" .$_SERVER["HTTP_HOST"] .$_SERVER["REQUEST_URI"] ."?ref=". $affiliate_id[0]->affiliate_id; ?>
